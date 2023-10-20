@@ -1,8 +1,11 @@
-import 'package:app/user.dart';
+import 'package:app/helper.dart';
+import 'package:app/user_list.dart';
+import 'package:app/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 class Accueil extends StatefulWidget {
   const Accueil({super.key});
@@ -16,6 +19,30 @@ class _AccueilState extends State<Accueil> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController prenomController = TextEditingController();
   final TextEditingController professionController = TextEditingController();
+  final TextEditingController numberController = TextEditingController();
+
+  final DatabaseService _databaseService = DatabaseService();
+
+  Future<void> _onSave() async {
+    final name = nameController.text;
+     final prenom = prenomController.text;
+    final numero = numberController.text;
+
+    await _databaseService
+        .insertUser(User(name: name,prenom: prenom,numero: numero));
+
+    //Navigator.pop(context);
+      Fluttertoast.showToast(
+      msg: "Contact créer avec succès",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+    );
+  }
+
+  Future<List<User>> _getUsers() async {
+    return await _databaseService.users();
+    
+  }
 
   String presentation = "";
 
@@ -34,7 +61,6 @@ class _AccueilState extends State<Accueil> {
       });
     }
   }*/
-  
 
   @override
   Widget build(BuildContext context) {
@@ -101,20 +127,19 @@ class _AccueilState extends State<Accueil> {
                   TextFormField(
                     validator: (String? value) {
                       return (value == null || value.isEmpty)
-                          ? 'Veuillez entrer votre profession'
+                          ? 'Veuillez entrer votre numéro'
                           : null;
                     },
-                    controller: professionController,
-                    keyboardType: TextInputType.text,
+                    controller: numberController,
+                    keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      label: Text("Profession"),
+                      label: Text("Téléphone"),
                       hintStyle: TextStyle(color: Colors.black),
                       prefixIcon: Icon(Icons.description),
                     ),
                   ),
-                  
-                  
-                /*  DropdownButton(
+
+                  /*  DropdownButton(
                        hint: Text("Profession",style: TextStyle(color: Colors.black),),
                       dropdownColor: Colors.blue,
                       isExpanded: true,
@@ -147,31 +172,21 @@ class _AccueilState extends State<Accueil> {
                   ),*/
                 ],
               ),
-              /* InkWell(
-                onTap: () async{
-                   if (formKey.currentState!.validate()){
-                    final prefs =await SharedPreferences.getInstance();
-                    prefs.setString("firstName", nameController.text);
-                    prefs.setString("lastName",prenomController.text);
-                    prefs.setString("profession", professionController.text);
-            
-                    Fluttertoast.showToast(
-                      msg:"Vous avez été enregister avec succès",
-                      toastLength:Toast.LENGTH_LONG,
-                      gravity:ToastGravity.BOTTOM,
-                    );
-                  }
-                },
+              InkWell(
+                onTap: 
+                  _onSave
+                
+               ,
                 child: Container(
                   width: width / 2,
                   height: width / 9,
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.green,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Center(
                     child: Text(
-                      "Valider",
+                      "Créer un contact",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -180,8 +195,8 @@ class _AccueilState extends State<Accueil> {
                     ),
                   ),
                 ),
-              ),*/
-            /*  InkWell(
+              ),
+              /*  InkWell(
               onTap: updateDescription,
               child: Container(
                 width: width / 2,
@@ -202,16 +217,14 @@ class _AccueilState extends State<Accueil> {
                 ),
               ),
             ),*/
-              InkWell(
+             /* InkWell(
                 onTap: () async {
-                //  DatabaseService dbService = new DatabaseServices();
-                  
-                 if (formKey.currentState!.validate()) {
+                  if (formKey.currentState!.validate()) {
                     final prefs = await SharedPreferences.getInstance();
                     prefs.setString("firstName", nameController.text);
                     prefs.setString("lastName", prenomController.text);
                     prefs.setString("profession", professionController.text);
-        
+
                     Fluttertoast.showToast(
                       msg: "Vous avez été enregister avec succès",
                       toastLength: Toast.LENGTH_LONG,
@@ -237,11 +250,15 @@ class _AccueilState extends State<Accueil> {
                     ),
                   ),
                 ),
-              ),
+              ),*/
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Utilisateurs()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ContactList(
+                                future: _getUsers(),
+                              )));
                 },
                 child: Container(
                   width: width / 2,
@@ -252,7 +269,7 @@ class _AccueilState extends State<Accueil> {
                   ),
                   child: const Center(
                     child: Text(
-                      "Page suivante",
+                      "Liste des contacts",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,

@@ -1,9 +1,17 @@
+import 'package:app/helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Utilisateurs extends StatefulWidget {
-  const Utilisateurs({super.key});
+  String nom;
+  String prenom;
+  String numero;
+  String id;
+   Utilisateurs({super.key,required this.id,
+      required this.nom,
+      required this.prenom,
+      required this.numero,});
 
   @override
   State<Utilisateurs> createState() => _UtilisateursState();
@@ -25,13 +33,14 @@ class _UtilisateursState extends State<Utilisateurs> {
     );
   }
 
+ 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!
         .addPostFrameCallback((timeStamp) => loadInformation());
   }
-
+ final DatabaseService _databaseService = DatabaseService();
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -55,7 +64,7 @@ class _UtilisateursState extends State<Utilisateurs> {
               style: TextStyle(fontSize: 20),
             ),
             title: Text(
-              _firstName,
+              widget.nom,
               style: TextStyle(fontSize: 20),
             ),
           ),
@@ -65,17 +74,17 @@ class _UtilisateursState extends State<Utilisateurs> {
               style: TextStyle(fontSize: 20),
             ),
             title: Text(
-              _lastName,
+              widget.prenom,
               style: TextStyle(fontSize: 20),
             ),
           ),
           ListTile(
             leading: Text(
-              "Profession: ",
+              "Numéro: ",
               style: TextStyle(fontSize: 20),
             ),
             title: Text(
-              _profession,
+              widget.numero,
               style: TextStyle(fontSize: 20),
             ),
           ),

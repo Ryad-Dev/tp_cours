@@ -1,7 +1,6 @@
 # app
 
-A new Flutter project.
-
+TP realisé pendant le cours
 ## Getting Started
 
 This project is a starting point for a Flutter application.
